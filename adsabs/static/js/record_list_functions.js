@@ -183,7 +183,6 @@ ResultListManager.view_alladin_lite = function()
  */
 ResultListManager.citation_helper = function()
 {
-        $.fancybox.showLoading();
         //re-enable query parameters
         $('#search_results_form > input[name="current_search_parameters"]').removeAttr('disabled');
         //remove a hidden fields if exists
@@ -211,17 +210,7 @@ ResultListManager.citation_helper = function()
         $('#search_results_form > input[name="current_search_parameters"]').attr('disabled','disabled');
         $('#search_results_form').append('<input type="hidden" name="bibcodes" class="ajaxHiddenField"  value="'+collapsed_bibcodes+'"/>');
         $('#search_results_form').append('<input type="hidden" name="return_nr" class="ajaxHiddenField"  value="10"/>');
-        //submit the form via ajax
-        $.ajax({
-                type : "POST",
-                cache : false,
-                url : GlobalVariables.ADSABS2_CITATION_HELPER_BASE_URL,
-                data : $('#search_results_form').serializeArray(),
-                success: function(data) {
-                    $.fancybox.hideLoading();
-                    $.fancybox(data);
-                } 
-        });
+        $('#search_results_form').attr('action', GlobalVariables.ADSABS2_CITATION_HELPER_BASE_URL).attr('target', '_blank').submit();
 };
 /*
  * Function to get Metrics results

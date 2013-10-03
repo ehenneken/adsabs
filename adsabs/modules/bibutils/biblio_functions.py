@@ -59,6 +59,6 @@ def get_suggestions(**args):
     meta_dict = get_meta_data(results=paperFreq[:Nsuggestions])
     # return results in required format
     if output_format == 'score':
-        return [{'bibcode':x,'score':y, 'title':meta_dict[x]['title'], 'author':meta_dict[x]['author']} for (x,y) in paperFreq[:Nsuggestions] if x in meta_dict.keys()]
+        return [{'bibcode':x,'score':y, 'title':meta_dict[x]['title'], 'author':meta_dict[x]['author'], 'authors':meta_dict[x]['authors']} for (x,y) in paperFreq[:Nsuggestions] if x in meta_dict.keys()]
     else:
-        return [{'bibcode':x,'score':'NA', 'title':meta_dict[x]['title'], 'author':meta_dict[x]['author']} for (x,y) in paperFreq[:Nsuggestions] if x in meta_dict.keys()]
+        return [{'bibcode':x,'score':'NA', 'title':meta_dict[x]['title'], 'author':meta_dict[x]['author'], 'authors':meta_dict[x]['authors']} for (x,y) in paperFreq[:Nsuggestions] if x in meta_dict.keys()]

@@ -1,30 +1,48 @@
 {# citation_helper_results.html  #}
-{% if include_layout == 'YES'%}
+{# if include_layout == 'YES'#}
+{% from "macros/record_list_macros/button_menu.html" import render_toggle_all_paper_list, render_export_menu with context %}
 {% extends "layout.html" %}
 {% block titlehead %}Citation Helper Results{% endblock %}
-{% endif %}
+{# endif #}
 {% block body %}
-<h3>{{ page_var }}</h3> 
-<div class="span9">
+<h3>{{ page_var }}</h3>
+<form id="search_results_form" method="post" action="" >
+<div class="container">
+<div class="span11 abstractAbstract">
+    <span class="abstract">
 These results consist of publications that cite and/or are cited by papers in the list you just submitted, but they were not in this list. The process closely resembles the network approach of establishing “friends of friends”. Assuming that the bibcodes provided are all valid, it is still possible that no results will be returned. If results are returned, they have a score associated with them. This score essentially reflects how many "friends" know these other "friends".
+    </span>
 </div>
-<br>
-<div class="span9">
-<ul class="resultsList">
+<div class="row">
+    <div class="row-fluid well well-small">
+    <div class="span5 firstspan">
+        {{ render_toggle_all_paper_list() }}
+    </div>
+    <div class="span5 pull-right">
+        {{ render_export_menu() }}
+    </div>
+    </div>
+    <div class="span10">
 {% for item in results %}
-    <li id="{{item['bibcode']}}">
+        <div class="row-fluid searchresult">
+        <div class="span1 ">
+            <label class="checkbox">
+                <input type="checkbox" value="{{ item['bibcode'] }}" name="bibcode"/>
+            </label>
+        </div>
         {% if item['score'] == 'NA'%}
         <div class="bibcode"><a href="{{ url_for('abs.abstract', bibcode=item['bibcode']) }}">{{item['bibcode']}}</a> {{item['author']}}: {{item['title']}}</div>
         {% else %}
-        <div class="bibcode"><a href="{{ url_for('abs.abstract', bibcode=item['bibcode']) }}">{{item['bibcode']}}</a> (score: {{item['score']}}), {{item['author']}}: {{item['title']}}</div>
+        <div class="span11">
+        <div class='span3 bibcode'><a href="{{ url_for('abs.abstract', bibcode=item['bibcode']) }}">{{ item['bibcode'] }}</a></div>
+        <div class="span2 citation_count">(score: {{item['score']}})</div>
+        <div class="span12 title">{{item['title']}}</div>
+        <div class="span12 author">{{item['authors']}}</div>
+        </div>
         {% endif %}
-    </li>
 {% endfor %}
-</ul>
+    </div>
 </div>
-{% if include_layout == 'YES'%}
-<div class="span9">
-<a href="{{ url_for('bibutils.citation_helper') }}">Go back</a>
 </div>
-{% endif %}
+</form>
 {% endblock %}

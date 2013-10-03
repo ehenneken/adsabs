@@ -314,7 +314,7 @@ def get_meta_data(**args):
     q = '%s' % list
     try:
         # Get the information from Solr
-        resp = solr.query(q, rows=config.BIBUTILS_MAX_HITS, fields=['bibcode,title,first_author'])
+        resp = solr.query(q, rows=config.BIBUTILS_MAX_HITS, fields=['bibcode,title,first_author,author'])
     except SolrMetaDataQueryError, e:
         app.logger.error("Solr references query for %s blew up (%s)" % (bibcode,e))
         raise
@@ -325,7 +325,13 @@ def get_meta_data(**args):
         if 'title' in doc: title = doc['title'][0]
         author = 'NA'
         if 'first_author' in doc: author = "%s,+"%doc['first_author'].split(',')[0]
-        data_dict[doc['bibcode']] = {'title':title, 'author':author}
+        authors = 'NA'
+        if 'author' in doc:
+            if len(doc['author']) > 4:
+                authors = "%s et al." % ';'.join(doc['author'][:4])
+            else:
+                authors = "%s" % ';'.join(doc['author'])
+        data_dict[doc['bibcode']] = {'title':title, 'author':author, 'authors':authors}
     return data_dict
 
 def get_mongo_data(**args):

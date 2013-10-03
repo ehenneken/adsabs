@@ -55,7 +55,7 @@ class TestCitationHelper(AdsabsBaseTestCase):
         with self.app.test_request_context('/bibutils'):
             self.app.preprocess_request()
             data = {'2314ADS..4305...27Q':{'title':u"An Artist's View of the Next Generation ADS Digital Library System",
-                'author':u'Quest,+'}}
+                'author':u'Quest,+', 'authors':'Quest, Cosmo'}}
             self.assertEqual(bf.get_meta_data(results=[('2314ADS..4305...27Q',1)]),data)
 
 if __name__ == '__main__':
