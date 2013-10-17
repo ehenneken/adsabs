@@ -16,7 +16,16 @@ ResultListManager.export_to_ads_classic = function()
 	$('#search_results_form').append('<input type="hidden" name="sort" class="ajaxHiddenField" value="NONE"/>');
 	
 	//if there are checked bibcodes there is nothing to do but submitting the form
-	if ($('#search_results_form').find('input[name="bibcode"]:checked').length > 0)
+        var citation_helper = $('#search_results_form').find('input[name="citation_helper"]').length;
+        var num_checked = $('#search_results_form').find('input[name="bibcode"]:checked').length;
+        if (citation_helper > 0 && num_checked < 1)
+        {
+            var $inputs = $('#search_results_form').find('input[name="bibcode"]');
+            $inputs.each(function() {
+                    $(this).prop('checked', true);
+                }); 
+        }; 
+	if (num_checked > 0 || citation_helper > 0)
 	{
 		//remove the query parameters
 		$('#search_results_form > input[name="current_search_parameters"]').attr('disabled','disabled');
@@ -65,8 +74,18 @@ ResultListManager.export_records_in_other_format = function(format)
 	//append the format to the form
 	$('#search_results_form').append('<input type="hidden" name="export_format" class="ajaxHiddenField"  value="'+format+'"/>');
 	
+        var citation_helper = $('#search_results_form').find('input[name="citation_helper"]').length;
+        var num_checked = $('#search_results_form').find('input[name="bibcode"]:checked').length;
+        if (citation_helper > 0 && num_checked < 1)
+        {
+            var $inputs = $('#search_results_form').find('input[name="bibcode"]');
+            $inputs.each(function() {
+                    $(this).prop('checked', true);
+                });
+        };
+
 	//if there are checked bibcodes
-	if ($('#search_results_form').find('input[name="bibcode"]:checked').length > 0)
+	if (num_checked > 0)
 	{
 		//remove the query parameters
 		$('#search_results_form > input[name="current_search_parameters"]').attr('disabled','disabled');
