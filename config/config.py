@@ -260,7 +260,11 @@ class AppConfig(object):
     METRICS_CHUNK_SIZE = 100
     METRICS_MAX_HITS = 100000
     METRICS_TMP_DIR = '/tmp'
-
+    METRICS_MONGO_HOST = 'localhost'
+    METRICS_DATABASE = 'metrics'
+    METRICS_COLLECTION = 'metrics_data'
+    METRICS_MONGO_USER = 'metrics'
+    METRICS_MONGO_PASSWORD = ''
     # config for the adsdata extension
     ADSDATA_MONGO_DATABASE = 'adsdata'
     ADSDATA_MONGO_HOST = "localhost"
