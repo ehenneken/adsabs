@@ -254,13 +254,14 @@ class AppConfig(object):
     BIBUTILS_DEFAULT_FORMAT = 'score'
     BIBUTILS_CITATION_SOURCE = 'MONGO'
     # configuration parameters for the metrics module
-    METRICS_DEFAULT_MODELS = ['statistics','histograms','metrics','series']
+    METRICS_DEFAULT_MODELS = 'statistics,histograms,metrics,series'
     METRICS_THREADS = 8
     METRICS_MIN_BIBLIO_LENGTH = 5
     METRICS_CHUNK_SIZE = 100
     METRICS_MAX_HITS = 100000
     METRICS_TMP_DIR = '/tmp'
     METRICS_MONGO_HOST = 'localhost'
+    METRICS_MONGO_PORT = 27017
     METRICS_DATABASE = 'metrics'
     METRICS_COLLECTION = 'metrics_data'
     METRICS_MONGO_USER = 'metrics'
