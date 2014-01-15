@@ -222,3 +222,18 @@ def metrics(**args):
         else:
             return render_template('metrics_results.html', results=results, include_layout=layout, export_id=excel_id)
     return render_template('metrics.html', form=form)
+
+@bibutils_blueprint.route('/stats/<bibcode>', defaults={'format': None}, methods=('GET','POST'))
+@bibutils_blueprint.route('/stats/<bibcode>/<format>', methods=('GET','POST'))
+def stats(bibcode, format):
+    """
+    Get basic statistics for single article
+    """
+    try:
+        results = generate_metrics(bibcodes=[bibcode])
+    except Exception, e:
+        app.logger.error('ID %s. Unable to get results! (%s)' % (g.user_cookie_id,e))
+    if format == 'json':
+        return jsonify(paper=bibcode, stats=results)
+    elif format == 'embedded_html':
+        return render_template('basic_stats_results.html', results=results)

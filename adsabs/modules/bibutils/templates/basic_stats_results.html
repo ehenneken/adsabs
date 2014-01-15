@@ -1,0 +1,41 @@
+{# basic_stats_results.html  #}
+<link rel="stylesheet" href="{{ url_for('bibutils.static', filename='css/metrics.css') }}">
+{% if not results.get('all stats', []) %}
+    <dl><dt></dt></dl>
+{% else %}
+		<table class="statsval">
+			<tbody>
+				<tr>
+					<td>Total reads</td>
+					<td>
+						{{results['all reads']['Total number of reads']}}
+					</td>
+				</tr>
+				<tr>
+    				<td>Total downloads</td>
+	    			<td>
+		    			{{results['all reads']['Total number of downloads']}}
+			    	</td>
+				</tr>
+				<tr>
+					<td>Total citations</td>
+					<td>
+						{{results['all stats']['Total citations']}}
+					</td>
+				</tr>
+				<tr>
+					<td>Normalized citations</td>
+					<td>
+						{{results['all stats']['Normalized citations']}}
+					</td>
+				</tr>
+				<tr>
+					<td>Refereed citations</td>
+					<td>
+						{{results['all stats']['Refereed citations']}}
+					</td>
+				</tr>
+
+			</tbody>
+		</table>
+{% endif %}

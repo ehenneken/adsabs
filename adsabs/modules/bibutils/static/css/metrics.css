@@ -5,6 +5,16 @@
 	padding:0;
 }
 
+table.statsval {
+	text-align:left;
+	border-collapse: collapse;
+	border-spacing: 0;
+	clear:both;
+	min-width: 200px;
+	font-family: Arial;
+	font-size: .9em;
+}
+
 table.metricsval {
 	text-align:right;
 	background: #EEE;

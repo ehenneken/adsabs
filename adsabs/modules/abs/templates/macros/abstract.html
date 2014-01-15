@@ -149,7 +149,7 @@
 			{% endif %}
 			
 			<div id="recommendations" class="linkRightMenu"></div>
-			
+			<div id="statistics" class="linkRightMenu"></div>
 			<div id="social_buttons" class="linkRightMenu">
 				<!--a target="_blank" class="socialButton" title="Save in Private library" data-rel="bootstrap_tooltip"
 					href="{{ url_for('redirect.socialbutton', redirect_type='private_library', bibcode=solrdoc.bibcode) }}">
@@ -223,6 +223,24 @@
 			.always(function(){
 				//Stop the spin
 				$('#recommendations').spin(false);
+			});
+		//Start a spin 
+		$('#statistics').html('&nbsp;').spin('ads_facets');
+		//create the url for the recommendations 
+		var url_to_query = "{{ url_for('bibutils.stats', bibcode=solrdoc.bibcode, format='embedded_html') }}";
+		//ajax query 
+		$.get(url_to_query)
+			.done(function(response){
+				//Insert the data into the DOM 
+				$('#statistics').html(response);
+			})
+			.fail(function(){
+				//Message if ajax fails 
+				$('#statistics').html('<dl><dt>Error retrieving statistics</dt></dl>');
+			})
+			.always(function(){
+				//Stop the spin
+				$('#statistics').spin(false);
 			});
 	});
 	</script>
