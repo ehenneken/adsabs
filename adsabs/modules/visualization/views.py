@@ -9,6 +9,7 @@ from flask import (Blueprint, request, url_for, Response, current_app as app, ab
 from flask.ext.solrquery import solr, signals as solr_signals #@UnresovledImport
 from config import config
 from authorsnetwork import get_authorsnetwork
+from utils import affiliations_cleanup
 from solrjsontowordcloudjson import wc_json
 #from alladinlite import get_objects
 
@@ -58,6 +59,48 @@ def author_network():
         
     return render_template('author_network_embedded.html', network_data=get_authorsnetwork(lists_of_authors))
 
+@visualization_blueprint.route('/affiliation_network', methods=['GET', 'POST'])
+def affiliation_network():
+    """
+    View that creates the data for the affiliation network
+    """
+        
+    #if there are not bibcodes, there should be a query to extract the authors
+    try:
+        query_components = json.loads(request.values.get('current_search_parameters'))
+    except (TypeError, JSONDecodeError):
+        #@todo: logging of the error
+        return render_template('errors/generic_error.html', error_message='Error while creating the author network (code #1). Please try later.')
+
+    # get the maximum number of records to use
+    query_components['rows'] = request.values.get('numRecs', config.MAX_EXPORTS['authnetwork'])
+
+    # checked bibcodes will be input as
+    if request.values.has_key('bibcode'):
+        bibcodes = request.values.getlist('bibcode')
+        query_components['q'] = ' OR '.join(["bibcode:%s" % b for b in bibcodes])
+
+    #update the query parameters to return only what is necessary
+    query_components.update({
+        'facets': [], 
+        'fields': ['aff'], 
+        'highlights': [], 
+        })
+
+    req = solr.create_request(**query_components)
+    if 'bigquery' in request.values:
+        from adsabs.core.solr import bigquery
+        bigquery.prepare_bigquery_request(req, request.values['bigquery'])
+    req = solr.set_defaults(req)
+    resp = solr.get_response(req)
+
+    if resp.is_error():
+        return render_template('errors/generic_error.html', error_message='Error while creating the author network (code #2). Please try later.')
+
+    #extract the authors
+    lists_of_affils = [affiliations_cleanup(doc.aff) for doc in resp.get_docset_objects() if doc.aff]
+
+    return render_template('author_network_embedded.html', network_data=get_authorsnetwork(lists_of_affils))
 
 @visualization_blueprint.route('/word_cloud', methods=['GET', 'POST'])
 def word_cloud():
