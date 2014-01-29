@@ -18,6 +18,7 @@ from .metrics_functions import generate_metrics
 from .metrics_functions import legacy_format
 from .utils import export_metrics
 from .utils import get_publications_from_query
+from .test import get_solr_stats
 from .errors import CitationHelperCannotGetResults
 
 __all__ = ['bibutils_blueprint', 'index_bibutils', 'citation_helper','metrics']
@@ -113,8 +114,8 @@ def citation_helper(**args):
                 flash('Citation Helper returned no results. Reason: No suggestions were found.')
     return render_template('citation_helper.html', form=form)
 
-@bibutils_blueprint.route('/metrics', methods=('GET','POST'))
-def metrics(**args):
+@bibutils_blueprint.route('/oldmetrics', methods=('GET','POST'))
+def oldmetrics(**args):
     """
     Entry point of input for Metrics: form to input bibcodes
     """
@@ -222,3 +223,45 @@ def metrics(**args):
         else:
             return render_template('metrics_results.html', results=results, include_layout=layout, export_id=excel_id)
     return render_template('metrics.html', form=form)
+
+@bibutils_blueprint.route('/metrics', methods=('GET','POST'))
+def metrics():
+    """
+    View that creates the data for the metrics using the Solr Stats module
+    """
+        
+    #if there are no bibcodes, use the query to extract the necessary information
+    try:
+        query_components = json.loads(request.values.get('current_search_parameters'))
+    except (TypeError, JSONDecodeError):
+        #@todo: logging of the error
+        return render_template('errors/generic_error.html', error_message='Error while retrieving metrics (code #1). Please try later.')
+
+    # get the maximum number of records to use
+    query_components['rows'] = request.values.get('numRecs', config.MAX_EXPORTS['metrics'])
+
+    # checked bibcodes will be input as
+    if request.values.has_key('bibcode'):
+        bibcodes = request.values.getlist('bibcode')
+        query_components['q'] = ' OR '.join(["bibcode:%s" % b for b in bibcodes])
+
+    res = get_solr_stats(solr_req=query_components)
+#    #update the query parameters to return only what is necessary
+#    query_components.update({
+#        'facets': [], 
+#        'fields': ['author_norm'], 
+#        'highlights': [], 
+#        })
+
+#    req = solr.create_request(**query_components)
+#    if 'bigquery' in request.values:
+#        from adsabs.core.solr import bigquery
+#        bigquery.prepare_bigquery_request(req, request.values['bigquery'])
+#    req = solr.set_defaults(req)
+#    resp = solr.get_response(req)
+
+#    if resp.is_error():
+#        return render_template('errors/generic_error.html', error_message='Error while creating the author network (code #2). Please try later.')
+        
+#    return render_template('author_network_embedded.html', network_data=get_authorsnetwork(lists_of_authors))
+    return render_template('metrics_no_results.html')
