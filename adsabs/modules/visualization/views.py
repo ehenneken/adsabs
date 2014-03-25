@@ -10,6 +10,7 @@ from flask.ext.solrquery import solr, signals as solr_signals #@UnresovledImport
 from config import config
 from authorsnetwork import get_authorsnetwork
 from papersnetwork import get_papernetwork
+from keywordnetwork import get_keywordnetwork
 from solrjsontowordcloudjson import wc_json
 #from alladinlite import get_objects
 
@@ -101,6 +102,49 @@ def paper_network():
     paper_info = [doc.__dict__['data'] for doc in resp.get_docset_objects() if doc.bibcode]
 
     return render_template('paper_network_embedded.html', network_data=get_papernetwork(paper_info))
+
+@visualization_blueprint.route('/keyword_network', methods=['GET', 'POST'])
+def keyword_network():
+    """
+    View that creates the data for the paper network
+    """
+        
+    #if there are no bibcodes, there should be a query to extract the bibcodes
+    try:
+        query_components = json.loads(request.values.get('current_search_parameters'))
+    except (TypeError, JSONDecodeError):
+        #@todo: logging of the error
+        return render_template('errors/generic_error.html', error_message='Error while creating the paper network (code #1). Please try later.')
+
+    # get the maximum number of records to use
+    query_components['rows'] = request.values.get('numRecs', config.MAX_EXPORTS['papernetwork'])
+
+    # checked bibcodes will be input as
+    if request.values.has_key('bibcode'):
+        bibcodes = request.values.getlist('bibcode')
+        query_components['q'] = ' OR '.join(["bibcode:%s" % b for b in bibcodes])
+
+    #update the query parameters to return only what is necessary
+    query_components.update({
+        'facets': [], 
+        'fields': ['bibcode,title,first_author,year','citation_count','read_count','reference','keyword','keyword_norm'], 
+        'highlights': [], 
+        })
+
+    req = solr.create_request(**query_components)
+    if 'bigquery' in request.values:
+        from adsabs.core.solr import bigquery
+        bigquery.prepare_bigquery_request(req, request.values['bigquery'])
+    req = solr.set_defaults(req)
+    resp = solr.get_response(req)
+
+    if resp.is_error():
+        return render_template('errors/generic_error.html', error_message='Error while creating the paper network (code #2). Please try later.')
+    
+    # prepare the info to send to the paper network machinery
+    paper_info = [doc.__dict__['data'] for doc in resp.get_docset_objects() if doc.bibcode]
+
+    return render_template('paper_network_embedded.html', network_data=get_keywordnetwork(paper_info))
 
 @visualization_blueprint.route('/word_cloud', methods=['GET', 'POST'])
 def word_cloud():
